@@ -6,6 +6,7 @@ using Items.Repos;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,14 +17,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>();
-builder.Services.AddScoped<IItemRepo, EfItemRepo>();
+builder.Services.AddScoped<EfProductRepo>();
 builder.Services.AddScoped<OrderRepo>();
 builder.Services.AddScoped<UsersRepo>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddCors();
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<ItemConsumer>();
+    x.AddConsumer<ProductsConsumer>();
     //x.UsingRabbitMq((context, cfg) =>
     //{
     //    cfg.ConfigureEndpoints(context);
@@ -48,7 +49,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
         };
     });
-builder.Services.AddScoped<ItemConsumer>();
+builder.Services.AddScoped<ProductsConsumer>();
+builder.Services.AddScoped<OrderConsumer>();
+builder.Services.AddScoped<HttpContextService>();
+
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -58,10 +63,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+app.UseAuthentication();
+app.UseAuthorization();
 
-//app.UseAuthorization();
-//app.UseAuthentication();
 
 app.MapControllers();
 

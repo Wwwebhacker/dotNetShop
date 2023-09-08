@@ -16,22 +16,23 @@ namespace Items.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
 
-            modelBuilder.Entity("ItemOrder", b =>
+            modelBuilder.Entity("Items.Models.Order", b =>
                 {
-                    b.Property<int>("ItemsId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("OrdersId")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("ItemsId", "OrdersId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("OrdersId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("OrderItem", (string)null);
+                    b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Items.Models.Item", b =>
+            modelBuilder.Entity("Items.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,18 +48,7 @@ namespace Items.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Items");
-                });
-
-            modelBuilder.Entity("Items.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Orders");
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Items.Models.User", b =>
@@ -80,19 +70,48 @@ namespace Items.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ItemOrder", b =>
+            modelBuilder.Entity("OrderProduct", b =>
                 {
-                    b.HasOne("Items.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsId")
+                    b.Property<int>("OrdersId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("OrdersId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("OrderProduct");
+                });
+
+            modelBuilder.Entity("Items.Models.Order", b =>
+                {
+                    b.HasOne("Items.Models.User", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("OrderProduct", b =>
+                {
                     b.HasOne("Items.Models.Order", null)
                         .WithMany()
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Items.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Items.Models.User", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

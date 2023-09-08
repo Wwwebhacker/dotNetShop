@@ -30,12 +30,12 @@ namespace Items
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+            var expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["JwtSettings:DurationInMinutes"]));
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_config["JwtSettings:DurationInMinutes"])),
+                expires: expires,
                 signingCredentials: creds);
 
             return new TokenData { token = new JwtSecurityTokenHandler().WriteToken(token), expires_at = token.ValidTo };

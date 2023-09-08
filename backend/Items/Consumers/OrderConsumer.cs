@@ -14,7 +14,7 @@ namespace Items.Consumers
         }
         public Task Consume(ConsumeContext<OrderCreatedMessage> context)
         {
-            orderRepo.AddOrder(context.Message.itemIds);
+            orderRepo.AddOrder(context.Message.user, context.Message.productIds);
 
             return Task.CompletedTask;
         }

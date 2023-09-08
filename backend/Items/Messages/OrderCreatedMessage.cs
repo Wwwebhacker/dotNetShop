@@ -1,7 +1,10 @@
-﻿namespace Items.Messages
+﻿using Items.Models;
+
+namespace Items.Messages
 {
     public class OrderCreatedMessage
     {
-        public List<int> itemIds { get; init; }
+        public User user { get; init; }
+        public List<int> productIds { get; init; }
     }
 }

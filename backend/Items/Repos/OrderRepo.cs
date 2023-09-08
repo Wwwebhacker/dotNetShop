@@ -11,19 +11,40 @@ namespace Items.Repos
         {
             this.context = context;
         }
-        public void AddOrder(List<int> itemIds)
-        {
-            var items = context.Items.Where(i => itemIds.Contains(i.Id)).ToList();
 
-            if (items.Count != itemIds.Count)
+        public List<Order> GetOrders(User user)
+        {
+            //return context.Orders.Where(o => o.UserId == user.Id).Include(o => o.Products).ToList();
+
+            var orderDTOs = context.Orders
+                       .Where(o => o.UserId == user.Id)
+                       .Select(o => new Order
+                       {
+                           Id = o.Id,
+                           Products = o.Products.Select(p => new Product
+                           {
+                               Id = p.Id,
+                               Name = p.Name,
+                               Description = p.Description
+                           }).ToList()
+                       }).ToList();
+            return orderDTOs;
+        }
+
+        public void AddOrder(User user, List<int> productIds)
+        {
+            var products = context.Products.Where(i => productIds.Contains(i.Id)).ToList();
+
+            if (products.Count != productIds.Count)
             {
-                throw new InvalidOperationException("Some items could not be found.");
+                throw new InvalidOperationException("Some products could not be found.");
             }
 
             var order = new Order();
-            foreach (var item in items)
+            order.UserId = user.Id;
+            foreach (var product in products)
             {
-                order.Items.Add(item);
+                order.Products.Add(product);
             }
 
             context.Orders.Add(order);

@@ -3,6 +3,8 @@
     public class Order
     {
         public int Id { get; set; }
-        public ICollection<Item> Items { get; } = new List<Item>();
+        public int UserId { get; set; }
+        public User User { get; }
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

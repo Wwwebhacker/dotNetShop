@@ -4,7 +4,7 @@ namespace Items.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<Item> Items { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<User> Users { get; set; }
 
@@ -13,14 +13,14 @@ namespace Items.Data
             optionsBuilder.UseSqlite("Data Source=appDatabase.db");
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Order>()
-                .HasMany(x => x.Items)
-                .WithMany(y => y.Orders)
-                .UsingEntity(j => j.ToTable("OrderItem"));
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Order>()
+        //        .HasMany(x => x.Products)
+        //        .WithMany(y => y.Orders)
+        //        .UsingEntity(j => j.ToTable("OrderProduct"));
 
-            base.OnModelCreating(modelBuilder);
-        }
+        //    base.OnModelCreating(modelBuilder);
+        //}
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Items.Messages
 {
-    public record ItemDeletedMessage
+    public record ProductDeletedMessage
     {
         public int Id { get; init; }
     }

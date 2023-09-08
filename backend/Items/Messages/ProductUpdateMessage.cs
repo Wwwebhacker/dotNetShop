@@ -1,7 +1,8 @@
 ﻿namespace Items.Messages
 {
-    public record ItemCreatedMessage
+    public record ProductUpdateMessage
     {
+        public int Id { get; init; }
         public string Name { get; init; }
         public string Description { get; init; }
     }
