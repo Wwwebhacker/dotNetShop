@@ -10,17 +10,24 @@ namespace Items.Consumers
         IConsumer<ProductDeletedMessage>
     {
         private readonly EfProductRepo _productRepository;
-        public ProductsConsumer(EfProductRepo productRepository)
+        private readonly ILogger<OrderConsumer> _logger;
+        public ProductsConsumer(EfProductRepo productRepository, ILogger<OrderConsumer> logger)
         {
             _productRepository = productRepository;
+            _logger = logger;
         }
         public Task Consume(ConsumeContext<ProductCreatedMessage> context)
         {
+            _logger.LogDebug("Added product start");
+
             _productRepository.AddProduct(new Models.Product
             {
                 Name = context.Message.Name,
                 Description = context.Message.Description,
+                ImageUrl = context.Message.ImageUrl,
+                InventoryCount = context.Message.InventoryCount
             });
+            _logger.LogWarning("Added product");
 
             return Task.CompletedTask;
         }
@@ -32,6 +39,9 @@ namespace Items.Consumers
                 Id = context.Message.Id,
                 Name = context.Message.Name,
                 Description = context.Message.Description,
+                Price = context.Message.Price,
+                ImageUrl = context.Message?.ImageUrl,
+                InventoryCount = context.Message.InventoryCount
             });
 
             return Task.CompletedTask;

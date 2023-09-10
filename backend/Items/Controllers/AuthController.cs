@@ -1,5 +1,8 @@
 ﻿using Items.Dto;
+using Items.MessageResult;
+using Items.Messages;
 using Items.Repos;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Items.Controllers
@@ -10,27 +13,44 @@ namespace Items.Controllers
     {
         private readonly UsersRepo _usersRepo;
         private readonly TokenService _tokenService;
+        IRequestClient<RegisterMessage> _registerClient;
 
-        public AuthController(UsersRepo usersRepo, TokenService tokenService)
+        public AuthController(UsersRepo usersRepo, TokenService tokenService, IRequestClient<RegisterMessage> registerClient)
         {
             _usersRepo = usersRepo;
             _tokenService = tokenService;
+            _registerClient = registerClient;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        public async Task<IActionResult> Register(RegisterMessage registerMsg)
         {
-            var user = _usersRepo.GetUser(registerDto.Email);
-            if (user != null)
+
+            Response response = await _registerClient.GetResponse<RegisterResult, RegisterFail>(registerMsg);
+            switch (response)
             {
-                return BadRequest("Email already in use");
+                case (_, RegisterResult result) responseA:
+                    return Ok(result);
+                case (_, RegisterFail Fail) responseB:
+                    return BadRequest("Email of password is incorrect");
+                default:
+                    throw new InvalidOperationException();
+
             }
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+            //var userInDb = _usersRepo.GetUser(registerDto.Email);
+            //if (userInDb != null)
+            //{
+            //    return BadRequest("Email already in use");
+            //}
 
-            _usersRepo.AddUser(new Models.User { Email = registerDto.Email, PasswordHash = hashedPassword });
+            //var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+            //var user = new User { Email = registerDto.Email, PasswordHash = hashedPassword };
+            //_usersRepo.AddUser(user);
 
-            return Ok();
+            //var token = _tokenService.GenerateToken(user.Email);
+
+            //return Ok(new { User = user, Token = token.token, Expires_at = token.expires_at });
         }
 
         [HttpPost]

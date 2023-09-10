@@ -1,4 +1,5 @@
-﻿using Items.Messages;
+﻿using Items.Dto;
+using Items.Messages;
 using Items.Models;
 using Items.Repos;
 using MassTransit;
@@ -35,17 +36,39 @@ namespace Items.Controllers
             return Ok(product);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddProduct(Product product)
+        [HttpGet("Files/{filename}")]
+        public IActionResult GetImage(string filename)
         {
-            //return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);
+            var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "images");
+            var imagePath = Path.Combine(imageDirectory, filename);
+
+            var imageFileStream = System.IO.File.OpenRead(imagePath);
+            return File(imageFileStream, "image/jpeg"); // Adjust MIME type based on your image.
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProduct([FromForm] ProductCreateDto productDto)
+        {
+            if (productDto.Image == null || productDto.Image.Length <= 0)
+            {
+                return BadRequest("Image upload failed.");
+            }
+
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "images", productDto.Image.FileName);
+
+            using (var stream = new FileStream(imagePath, FileMode.Create))
+            {
+                await productDto.Image.CopyToAsync(stream);
+            }
 
             await _publishEndpoint.Publish(new ProductCreatedMessage
             {
-                Name = product.Name,
-                Description = product.Description,
+                Name = productDto.Name,
+                Description = productDto.Description,
+                ImageUrl = $"/images/{productDto.Image.FileName}",
+                Price = productDto.Price,
+                InventoryCount = productDto.InventoryCount,
             });
-
 
             return Ok();
         }
@@ -63,6 +86,8 @@ namespace Items.Controllers
                 Id = id,
                 Name = updatedProduct.Name,
                 Description = updatedProduct.Description,
+                Price = updatedProduct.Price,
+                InventoryCount = updatedProduct.InventoryCount,
             });
 
             return Ok();

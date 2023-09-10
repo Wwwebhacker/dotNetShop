@@ -1,4 +1,5 @@
-﻿using Items.Repos;
+﻿using Items.Messages;
+using Items.Repos;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,12 +38,12 @@ namespace Items.Controllers
             //    user = contextService.getUser(),
             //    productIds = productIds
             //});
-            orderRepo.AddOrder(contextService.getUser(), productIds);
-            //await _publishEndpoint.Publish(new OrderCreatedMessage
-            //{
-            //    user = contextService.getUser(),
-            //    productIds = productIds
-            //});
+            //orderRepo.AddOrder(contextService.getUser(), productIds);
+            await _publishEndpoint.Publish(new OrderCreatedMessage
+            {
+                user = contextService.getUser(),
+                productIds = productIds
+            });
 
             return Ok();
         }

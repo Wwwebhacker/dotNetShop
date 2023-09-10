@@ -1,13 +1,19 @@
 global using Microsoft.EntityFrameworkCore;
 using Items;
-using Items.Consumers;
 using Items.Data;
 using Items.Repos;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +30,12 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddCors();
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<ProductsConsumer>();
+    var consumerAssembly = Assembly.GetExecutingAssembly();
+    foreach (var type in consumerAssembly.GetTypes()
+        .Where(t => t.Namespace != null && t.Namespace.StartsWith("Items.Consumers") && typeof(IConsumer).IsAssignableFrom(t)))
+    {
+        x.AddConsumer(type);
+    }
     //x.UsingRabbitMq((context, cfg) =>
     //{
     //    cfg.ConfigureEndpoints(context);
@@ -32,6 +43,10 @@ builder.Services.AddMassTransit(x =>
     //});
     x.UsingInMemory((context, cfg) =>
     {
+        cfg.UseMessageRetry(r =>
+            r.Interval(5, TimeSpan.FromSeconds(1))
+        );
+
         cfg.ConfigureEndpoints(context);
     });
 });
@@ -49,9 +64,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
         };
     });
-builder.Services.AddScoped<ProductsConsumer>();
-builder.Services.AddScoped<OrderConsumer>();
+var consumerAssembly = Assembly.GetExecutingAssembly();
+foreach (var type in consumerAssembly.GetTypes()
+    .Where(t => t.Namespace != null && t.Namespace.StartsWith("Items.Consumers") && typeof(IConsumer).IsAssignableFrom(t)))
+{
+    builder.Services.AddScoped(type);
+}
+
 builder.Services.AddScoped<HttpContextService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddLogging(loggingBuilder =>
+    loggingBuilder.AddSerilog(dispose: true)
+);
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
@@ -70,7 +94,7 @@ app.UseAuthorization();
 
 
 app.MapControllers();
-
+app.UseStaticFiles();
 app.UseCors(options => options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader());
 
 app.Run();
