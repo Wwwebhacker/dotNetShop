@@ -13,6 +13,8 @@ import { CartComponent } from './cart/cart.component';
 import { CartListComponent } from './cart-list/cart-list.component';
 import { AuthComponent } from './auth/auth.component';
 import { AuthInterceptor } from './services/httpInterceptor';
+import { AccountDetailsComponent } from './account-details/account-details.component';
+import { PCardComponent } from './p-card/p-card.component';
 
 
 @NgModule({
@@ -23,7 +25,9 @@ import { AuthInterceptor } from './services/httpInterceptor';
     ProductsEditComponent,
     CartComponent,
     CartListComponent,
-    AuthComponent
+    AuthComponent,
+    AccountDetailsComponent,
+    PCardComponent
   ],
   imports: [
     BrowserModule,

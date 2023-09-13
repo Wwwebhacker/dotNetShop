@@ -8,15 +8,20 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent implements OnInit {
   title = 'f-end';
-  logged = false;
-  user: any;
 
   constructor(private authService: AuthService){
       
   }
 
   ngOnInit(){
-    this.logged = this.authService.isLoggedIn();
-    this.user = this.authService.getUser();
+  
+  }
+
+  getUser(){
+    return this.authService.getUser();
+  }
+
+  logout(){
+    return this.authService.logout();
   }
 }

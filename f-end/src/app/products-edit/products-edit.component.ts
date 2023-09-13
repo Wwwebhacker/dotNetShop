@@ -10,10 +10,13 @@ import { Product } from '../models/product.model';
   styleUrls: ['./products-edit.component.css']
 })
 export class ProductsEditComponent {
-  product?: Product;
+  selectedFile: File | undefined;
+  id?: number;
   productForm = this.fb.group({
     name: ['', Validators.required],
-    description: ['', Validators.required]
+    description: ['', Validators.required],
+    price: [0.0, Validators.required],
+    inventoryCount: [0, [Validators.required, Validators.pattern('^[0-9]*$')]]
   })
 
   constructor(private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private service: ProductsService){
@@ -30,24 +33,39 @@ export class ProductsEditComponent {
 
   fetchProduct(id: number){
     this.service.getProduct(id).subscribe(product => {
-      this.product = product;
-      this.productForm.setValue({name: product.name, description: product.name})
+      this.id = product.id;
+      this.productForm.setValue({name: product.name, description: product.description, price: product.price, inventoryCount: product.inventoryCount})
     });
   }
 
+
+  onFileSelected(event: any) {
+    this.selectedFile = <File>event.target.files[0];
+  }
+
   onSubmit() {
-    if(!this.product){
-      if(!this.productForm.valid){
+    if(!this.productForm.valid){
+      return;
+    }
+    const product: Product = {
+      name: this.productForm.value.name || '', 
+      description: this.productForm.value.description || '',
+      price: this.productForm.value.price || 0.0,
+      inventoryCount: this.productForm.value.inventoryCount || 0
+    }
+    if(!this.id){
+      if(!this.selectedFile){
         return;
       }
-      const product: Product = {name: this.productForm.value.name || '', description: this.productForm.value.description || ''}
-      this.service.addProduct(product).subscribe(responce => {
+      
+      console.log(product);
+
+      this.service.addProduct(product, this.selectedFile).subscribe(responce => {
         this.redirect();
       }); 
     }else{
-      this.product.name = this.productForm.value.name || '';
-      this.product.description = this.productForm.value.description || '';
-      this.service.updateProduct(this.product).subscribe(response => {
+      product.id = this.id;
+      this.service.updateProduct(product).subscribe(response => {
         this.redirect();
       })
     }    

@@ -25,7 +25,9 @@ namespace Items.Repos
                            {
                                Id = p.Id,
                                Name = p.Name,
-                               Description = p.Description
+                               Description = p.Description,
+                               Price = p.Price,
+                               InventoryCount = p.InventoryCount,
                            }).ToList()
                        }).ToList();
             return orderDTOs;

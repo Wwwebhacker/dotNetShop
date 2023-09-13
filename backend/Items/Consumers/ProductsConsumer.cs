@@ -24,6 +24,7 @@ namespace Items.Consumers
             {
                 Name = context.Message.Name,
                 Description = context.Message.Description,
+                Price = context.Message.Price,
                 ImageUrl = context.Message.ImageUrl,
                 InventoryCount = context.Message.InventoryCount
             });

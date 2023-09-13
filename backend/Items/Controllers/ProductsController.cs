@@ -54,9 +54,18 @@ namespace Items.Controllers
                 return BadRequest("Image upload failed.");
             }
 
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "images", productDto.Image.FileName);
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "images");
 
-            using (var stream = new FileStream(imagePath, FileMode.Create))
+            // Check if the directory exists, create if not
+            if (!Directory.Exists(imagePath))
+            {
+                Directory.CreateDirectory(imagePath);
+            }
+
+            // Combine the directory path with the file name
+            var fullFilePath = Path.Combine(imagePath, productDto.Image.FileName);
+
+            using (var stream = new FileStream(fullFilePath, FileMode.Create))
             {
                 await productDto.Image.CopyToAsync(stream);
             }

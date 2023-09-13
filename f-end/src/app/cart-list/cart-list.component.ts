@@ -21,7 +21,7 @@ export class CartListComponent {
   }
   buy(){
     this.cartService.buy().subscribe(() => {
-      
+      this.cartService.clearCart();
     });
   }
 }

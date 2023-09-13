@@ -37,4 +37,9 @@ export class CartService {
   buy(){
     return this.http.post(Env.baseUrl + `/api/Orders`, this.products.map(p => p.id));
   }
+
+  clearCart(){
+    this.products = [];
+    this.emitUpdate();
+  }
 }

@@ -4,6 +4,7 @@ import { AuthModel } from '../models/auth.model';
 import { Env } from '../env';
 import { shareReplay, tap } from 'rxjs/operators';
 import * as moment from 'moment';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,16 @@ export class AuthService {
     );
   }
 
+  register(authModel: AuthModel){
+    return this.http.post<any>(Env.baseUrl + `/api/Auth/Register`, authModel)
+    .pipe(
+      tap(res =>this.setSession(res)),
+      shareReplay()
+    );
+  }
+
   private setSession(authResult: {
-    user: object; expires_at: any; token: string; 
+    user: User; expires_at: any; token: string; 
   }){
     const expiresAt = moment(authResult.expires_at);
     localStorage.setItem('user', JSON.stringify(authResult.user));
@@ -49,6 +58,11 @@ export class AuthService {
   }   
 
   getUser(){
-    return JSON.parse(localStorage.getItem('user') || '');
+    let user = localStorage.getItem('user');
+    if (user){
+      return JSON.parse(user);
+
+    }
+    return null;
   }
 }
