@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-5">
-      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="productForm">
         <div class="form-group">
           <label>Name:</label>
           <input class="form-control" type="text" placeholder="name.." formControlName="name">
@@ -21,7 +21,8 @@
           <label>Image:</label>
           <input class="form-control" type="file" (change)="onFileSelected($event)">
         </div>
-        <button type="submit" class="btn btn-primary my-2">Submit</button>
+        <button class="btn btn-primary my-2" (click)="onSubmit()">Submit</button>
+        <button *ngIf="id" class="btn btn-danger ms-2" (click)="onDelete()">Delete</button>
       </form>
     </div>
 </div>

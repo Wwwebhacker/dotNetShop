@@ -65,10 +65,17 @@ export class ProductsEditComponent {
       }); 
     }else{
       product.id = this.id;
-      this.service.updateProduct(product).subscribe(response => {
+      
+      this.service.updateProduct(product, this.selectedFile || undefined).subscribe(response => {
         this.redirect();
       })
     }    
+  }
+
+  onDelete(){
+    if (this.id){
+      this.service.deleteProduct(this.id).subscribe( response => this.redirect());
+    }
   }
 
   redirect(){

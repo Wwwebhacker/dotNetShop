@@ -16,6 +16,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHealthChecks();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -38,13 +39,17 @@ builder.Services.AddMassTransit(x =>
     }
     //x.UsingRabbitMq((context, cfg) =>
     //{
+    //    cfg.UseMessageRetry(r =>
+    //        r.Interval(2, TimeSpan.FromSeconds(1))
+    //    );
     //    cfg.ConfigureEndpoints(context);
-    //    cfg.Host("rabbitmq://localhost");
+    //    //cfg.Host("rabbitmq://localhost");
+    //    cfg.Host("rabbitmq://rabbitmq");
     //});
     x.UsingInMemory((context, cfg) =>
     {
         cfg.UseMessageRetry(r =>
-            r.Interval(5, TimeSpan.FromSeconds(1))
+            r.Interval(2, TimeSpan.FromSeconds(1))
         );
 
         cfg.ConfigureEndpoints(context);
@@ -79,7 +84,7 @@ builder.Services.AddLogging(loggingBuilder =>
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
-
+app.MapHealthChecks("/healthz");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -95,7 +100,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseStaticFiles();
-app.UseCors(options => options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 using (var scope = app.Services.CreateScope())
 {

@@ -18,8 +18,6 @@ namespace Items.Consumers
         }
         public Task Consume(ConsumeContext<ProductCreatedMessage> context)
         {
-            _logger.LogDebug("Added product start");
-
             _productRepository.AddProduct(new Models.Product
             {
                 Name = context.Message.Name,
@@ -28,7 +26,6 @@ namespace Items.Consumers
                 ImageUrl = context.Message.ImageUrl,
                 InventoryCount = context.Message.InventoryCount
             });
-            _logger.LogWarning("Added product");
 
             return Task.CompletedTask;
         }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { EMPTY, Observable, map } from 'rxjs';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Product } from '../models/product.model';
 import {Env} from '../env' ;
@@ -41,8 +41,25 @@ export class ProductsService {
     return this.http.post(Env.baseUrl +`/api/Products`, formData);
   }
 
-  updateProduct(product: Product){
-    return this.http.put(Env.baseUrl +`/api/Products/${product.id}`, product);
+  updateProduct(product: Product, file?: File){
+   
+    
+
+    const formData: FormData = new FormData();
+    formData.append('Name', product.name);
+    formData.append('Id', product.id?.toString() || '');
+    formData.append('Description', product.description);
+    formData.append('Price',  product.price.toString());
+    formData.append('inventoryCount',  product.inventoryCount.toString());
+    if (file){
+      formData.append('Image', file, file.name);
+    }
+
+    return this.http.put(Env.baseUrl +`/api/Products/${product.id}`, formData);
+  }
+
+  deleteProduct(id: number){
+    return this.http.delete(Env.baseUrl +`/api/Products/${id}`);
   }
 
   // private createImageFromBlob(image: Blob) {

@@ -17,7 +17,7 @@ export class ProductsComponent {
   
   ngOnInit(){
     this.load();
-    // this.intervalId = window.setInterval(() => this.load(), 5000);
+    this.intervalId = window.setInterval(() => this.load(), 5000);
   }
 
   ngOnDestroy(){

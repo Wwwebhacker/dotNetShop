@@ -1,5 +1,7 @@
 <div class="card mb-3">
-    <img [src]="product.imageUrl" alt="{{ product.name }}" class="card-img-top">
+    <div class="text-center">
+        <img [src]="product.imageUrl" alt="{{ product.name }}" class="rounded float w-50">
+    </div>
     <div class="card-body">
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description }}</p>

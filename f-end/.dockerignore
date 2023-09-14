@@ -4,7 +4,7 @@ npm-debug.log
 
 # Angular build artifacts
 dist/
-
+.angular/
 # Ignore any .git directory
 .git/
 

@@ -3,14 +3,16 @@ version: '3.7'
 services:
   frontend:
     image: angular-frontend:latest  # Replace with your frontend image name
+    container_name: frontend-container
     build:
       context: ./f-end  # Adjust this to the path of your Angular app
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "4444:80"
 
   backend:
     image: netcore-backend:latest  # Replace with your backend image name
+    container_name: backend-container
     build:
       context: ./backend/Items  # Adjust this to the path of your .NET Core app
       dockerfile: Dockerfile
@@ -19,12 +21,10 @@ services:
     depends_on:
       - rabbitmq
 
-  # rabbitmq:
-  #   image: "rabbitmq:management"
-  #   ports:
-  #     - "15672:15672"  # Management UI
-  #     - "5672:5672"    # AMQP port
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: "user"        # Adjust as needed
-  #     RABBITMQ_DEFAULT_PASS: "password"    # Adjust as needed
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq-container
+    ports:
+      - "15672:15672"  # Management UI
+      - "5672:5672"    # AMQP port
 

@@ -10,6 +10,8 @@ WORKDIR /src
 
 COPY ["Items.csproj", "."]
 RUN dotnet restore "Items.csproj"
+# Copy the images folder
+COPY ["images/", "/app/images/"]
 COPY . .
 RUN dotnet build "Items.csproj" -c Release -o /app/build
 
@@ -20,6 +22,9 @@ RUN dotnet publish "Items.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy the images to the final image
+COPY --from=build /app/images /app/images  
 
 # Expose port 5000 for the backend service
 EXPOSE 80
