@@ -1,1 +1,1 @@
-#EShop web application using .NET and CQRS.
+# EShop web application using .NET and CQRS.
